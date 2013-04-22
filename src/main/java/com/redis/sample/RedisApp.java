@@ -1,5 +1,6 @@
 package com.redis.sample;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,13 +11,13 @@ import redis.clients.jedis.Jedis;
  * Hello world!
  *
  */
-public class App 
+public class RedisApp 
 {
-    public static void main( String[] args )
+    public static void main( String[] args ) throws IOException, ClassNotFoundException
     {
         System.out.println( "Hola Mundo!" );
         Jedis jedis = new Jedis("localhost");
-        jedis.set("foo", "bar");
+        jedis.set("taco", "El Taco Grande En La Casa!");
         String value = jedis.get("taco");
         
         System.out.println(value);
@@ -31,12 +32,13 @@ public class App
         phoneNumberList.add(phoneNumberOne);
         employee.setEmployeePhoneNumber(phoneNumberList);
         
-        jedis.set(employee.toString().getBytes(), employee.toString().getBytes());
-        
-        byte[] employeeBytes = jedis.get(employee.toString().getBytes());
-        
-        
-        employee.toString().getBytes();
+       jedis.set(ObjectSerializer.serialize(employee), ObjectSerializer.serialize(employee));
+       
+       byte[] employeeKey = ObjectSerializer.serialize(employee);
+       
+       employee = null;
+       employee = (Employee)ObjectSerializer.deserialize(jedis.get(employeeKey));
+       System.out.println(employee.getEmployeeName());
         
     }
 }
